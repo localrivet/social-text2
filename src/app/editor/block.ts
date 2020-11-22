@@ -1,51 +1,107 @@
-import { PluginCallback, PluginProperties } from "../interfaces/social-plugin.interface";
-
-import { Api } from "../api";
-import { BlockJson } from "../interfaces/block.interface";
-
-type exec<PluginCallback> = (api: Api, props: PluginProperties) => {};
-
 export class Block {
-    blockJson: BlockJson = {};
-    config = {
-        childList: true,
-        attributes: true,
-        characterData: true
-    };
     content: string = '';
     fragments: DocumentFragment[] = [];
     triggerEvent: KeyboardEvent;
 
+    /**
+     * 
+     * @param blockID string
+     * @param blockElement HTMLElement
+     */
     constructor(public blockID: string, public blockElement: HTMLElement) { }
 
-    trigger(ev: KeyboardEvent) {
+    /**
+     * 
+     * @param ev 
+     * @returns void
+     */
+    trigger(ev: KeyboardEvent): void {
         this.triggerEvent = ev;
     }
 
+    /**
+     * 
+     * @param content 
+     * @returns void
+     */
     update(content: string) {
         this.content = content;
         this.fragments = [];
         this._contentToFragment();
     }
 
-    publish(content: string) {
-        this._insertTextAtCaret(content);
+    /**
+     * 
+     * @param content 
+     * @returns void
+     */
+    publish(content: string): void {
+
+        // keep the last char if it's punctuation
+        let lastCharToReplace: string = '';
+        if (/[\s.,;:!?]+/ig.test(this.lastChar())) {
+            lastCharToReplace = this.lastChar().replace(/[\s.,;:!?]+/ig, (str, ...args) => {
+                if (args[1]) {
+                    return args[1];
+                }
+                return str;
+            });
+        }
+
+        this._insertTextAtCaret(content + lastCharToReplace);
     }
 
-    onUpdate() {
+    /**
+     * @returns HTMLElement
+     */
+    onUpdate(): HTMLElement {
         return this.blockElement;
     }
 
-    rawHTML() {
+    /**
+     * @returns string
+     */
+    rawHTML(): string {
         return this.blockElement.innerHTML.replace(`&nbsp;`, ' ').trim();
     }
 
-    decodeHtml(html: string) {
+    /**
+     * @returns string
+     */
+    rawText(): string {
+        return this.blockElement.innerText.trim();
+    }
+
+    /**
+     * 
+     * @param html 
+     * @returns string
+     */
+    decodeHtml(html: string): string {
         const txt = document.createElement("textarea");
         txt.innerHTML = html;
         return txt.value;
     }
 
+    /**
+    * @return string[]
+    */
+    allWords(): string[] {
+        // quiet any errors from the nodeValue being null
+        try {
+            return this.fragments
+                .slice(-1)
+                .pop()
+                .nodeValue
+                .split(/\s/);
+        } catch (e: any) {
+            return [];
+        }
+    }
+
+    /**
+     * @return string
+     */
     lastWord(): string {
         // quiet any errors from the nodeValue being null
         try {
@@ -60,15 +116,74 @@ export class Block {
         }
     }
 
+    /**
+     * @return strings
+     */
     lastChar() {
         return this.blockElement.innerText.slice(-1);
     }
 
+    /**
+     * @return strings
+     */
     getText() {
         return this.blockElement.innerText;
     }
 
-    private _contentToFragment() {
+    /**
+     * 
+     * @param attributes { [attribute: string]: string }
+     * @param element HTMLElement
+     * @returns void
+     */
+    applyAttributes(attributes: { [attribute: string]: string }, element?: HTMLElement): void {
+        for (const attribute in attributes) {
+            if (element) {
+                element.setAttribute(attribute, attributes[attribute]);
+            }
+            else {
+                this.blockElement.setAttribute(attribute, attributes[attribute]);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param styles { [style: string]: string }
+     * @param element HTMLElement
+     * @returns void 
+     */
+    applyStyes(styles: { [style: string]: string }, element?: HTMLElement): void {
+        const styleArr = [];
+        for (const style in styles) {
+            styleArr.push(`${style}:${styles[style]}`);
+        }
+
+        if (element) {
+            element.style.cssText = styleArr.join(';');
+        } else {
+            this.blockElement.style.cssText = styleArr.join(';');
+        }
+    }
+
+    /**
+     * 
+     * @param classes string[]
+     * @param element HTMLElement
+     * @returns void
+     */
+    applyClasses(classes: string[], element?: HTMLElement): void {
+        if (element) {
+            element.classList.add(...classes);
+        } else {
+            this.blockElement.classList.add(...classes);
+        }
+    }
+
+    /**
+     * @returns void
+     */
+    private _contentToFragment(): void {
         // split the content into fragments
         let el = document.createElement("div");
         el.innerHTML = this.content;
@@ -78,19 +193,21 @@ export class Block {
         }
     }
 
-    private _insertTextAtCaret(html: string) {
+    /**
+     * 
+     * @param html 
+     * @returns void
+     */
+    private _insertTextAtCaret(html: string): void {
         if (window.getSelection) {
-            // IE9 and non-IE
-            let sel: Selection = window.getSelection();
-            let range: Range;
+
+            const sel: Selection = window.getSelection();
             if (sel.getRangeAt && sel.rangeCount) {
-                range = sel.getRangeAt(0);
+
+                let range: Range = sel.getRangeAt(0);
                 range.setEnd(this.blockElement as Node, 0);
                 range.deleteContents();
 
-                // Range.createContextualFragment() would be useful here but is
-                // only relatively recently standardized and is not supported in
-                // some browsers (IE9, for one)
                 let el = document.createElement('div');
                 el.innerHTML = html;
                 let frag = document.createDocumentFragment();
@@ -118,7 +235,7 @@ export class Block {
                         console.log('NO LAST NODE');
                     }
                 } else {
-                    console.log('ENTER PRESSED');
+                    // enter was pressed
                     let nextFocusBlock: Node;
                     const parentChildren = this.blockElement.parentNode.children;
                     for (let i = 0; i < parentChildren.length; i++) {
@@ -127,11 +244,10 @@ export class Block {
                             nextFocusBlock = (parentChildren[i + 1] as Node)
                             break;
                         }
-                        console.log('*** CHILD NODE', (parentChildren[i] as HTMLElement)?.dataset?.block);
+                        // console.log('*** CHILD NODE', (parentChildren[i] as HTMLElement)?.dataset?.block);
                     }
 
-                    console.log('*** NEXT FOCUS BLOCK', nextFocusBlock);
-
+                    // console.log('*** NEXT FOCUS BLOCK', nextFocusBlock);
 
                     if (nextFocusBlock) {
                         this._clearSelection();
@@ -140,7 +256,6 @@ export class Block {
                         range.setStart(focusNode, 0);
                         range.setEnd(focusNode, 0);
                         range.deleteContents();
-                        console.log(range);
                         const sel = window.getSelection();
                         sel.removeAllRanges();
                         sel.addRange(range);
@@ -150,7 +265,10 @@ export class Block {
         }
     }
 
-    private _clearSelection() {
+    /**
+     * @returns void
+     */
+    private _clearSelection(): void {
         if (window.getSelection) {
             if (window.getSelection().empty) {  // Chrome
                 window.getSelection().empty();
@@ -160,94 +278,3 @@ export class Block {
         }
     }
 }
-
- // const lang = {
-        //     js: {
-        //       equa: /(\b=\b)/g,
-        //       quot: /(`|'|"|&#39;|&#34;)/g,
-        //       comm: /((\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)|(\/\/.*))/g,
-        //       logi: /(%=|%|\-|\+|\*|&amp;{1,2}|\|{1,2}|&lt;=|&gt;=|&lt;|&gt;|!={1,2}|={2,3})/g,
-        //       numb: /(\d+(\.\d+)?(e\d+)?)/g,
-        //       func: /(?<=^|\s*)(async|console|alert|Math|Object|Array|String|class(?!\s*\=)|function|(?<=\.)\D\w*)(?=\b)/g,
-        //       decl: /(?<=^|\s*)(var|let|const)/g, // Declarations
-        //       pare: /(\(|\))/g,
-        //       squa: /(\[|\])/g,
-        //       curl: /(\{|\})/g,
-        //     },
-        //     // Props order matters! Here I rely on "tags:"
-        //     // being already applied in the previous iteration
-        //     html: {
-        //       tags: /(?<=&lt;(?:\/)?)(\w+)(?=\s|\&gt;)/g,
-        //       angl: /(&lt;\/?|&gt;)/g,
-        //       attr: /((?<=<i class=html_tags>\w+<\/i>)[^<]+)/g,
-        //     }
-        //   };
-
-        //   const highLite = (el:HTMLElement) => {
-        //       console.log(el.innerHTML);
-        //     // const dataLang = 'js'; // Detect "js", "html", "py", "bash", ...
-        //     // const langObj = lang[dataLang]; // Extract object from lang regexes dictionary
-        //     // let html = el.innerHTML;
-        //     // Object.keys(langObj).forEach(function(key) {
-        //     //   html = html.replace(langObj[key], `<i class=${dataLang}_${key}>$1</i>`);
-        //     // });
-        //     // el.previousElementSibling.innerHTML = html; // Finally, show highlights!
-        //   };
-
-
-
-        // // // editor.contentEditable = 'true';
-        // // editor.spellcheck = false;
-        // // // editor.autocorrect = "off";
-        // // editor.autocapitalize = "off";
-        // // editor.addEventListener("input", highLite.bind(null, editor));
-        // // editor.addEventListener("input", highLite.bind(null, editor));
-        // // highLite(editor); // Init!
-
-
-/**
- * setBlockEvents() {
-
-        const observer = new MutationObserver((mutationsList) => {
-            console.log(mutationsList);
-            // // Use traditional 'for loops' for IE 11
-            // for (const mutation of mutationsList) {
-            //     if (mutation.type === 'childList') {
-            //         console.log('A child node has been added or removed.');
-            //     }
-            //     else if (mutation.type === 'attributes') {
-            //         console.log('The ' + mutation.attributeName + ' attribute was modified.');
-            //     } else if (mutation.type === 'characterData') {
-            //         console.log(mutationsList);
-            //     }
-            // }
-        });
-
-        const targetNode = document.querySelector(`[data-block="${this.id}"]`);
-        observer.observe(targetNode, this.config);
-
-        console.log(targetNode);
-
-        // const keyEvent = fromEvent(this.blockElement, 'keydown');
-        // this.blockElement.addEventListener('keydown', (event) => {
-        //     console.log('key pressed');
-        // });
-
-        // keyEvent.subscribe(() => {
-        //     console.log('key pressed');
-        // });
-
-        // console.log('setting events', this.blockElement);
-        fromEvent(this.blockElement, 'keydown').subscribe((event: KeyboardEvent) => {
-
-            // this.manageBlock(event, element, blockJson);
-
-            this.blockJson = {
-                type: this.blockElement.tagName,
-                content: this.blockElement.innerHTML
-            };
-
-            console.log(this.blockJson);
-        });
-    }
- */
