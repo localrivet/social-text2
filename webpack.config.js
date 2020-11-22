@@ -25,7 +25,7 @@ module.exports = {
     "social-text": path.resolve(environment.paths.source, 'main.ts'),
   },
   output: {
-    filename: 'js/[name].js',
+    filename: '[name].min.js',
     path: environment.paths.output,
     libraryTarget: 'umd',
     library: 'SocialText'
