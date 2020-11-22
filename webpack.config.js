@@ -10,14 +10,25 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const environment = require('./configuration/environment');
 
 const templateFiles = fs.readdirSync(path.resolve(__dirname, environment.paths.source));
-const htmlPluginEntries = templateFiles.map((template) => new HTMLWebpackPlugin({
-  inject: true,
-  hash: false,
-  filename: template,
-  template: path.resolve(environment.paths.source, template),
-  // favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
-}));
+const htmlPluginEntries = templateFiles.map((template) => {
 
+  console.log({
+    inject: true,
+    hash: false,
+    filename: template,
+    template: path.resolve(environment.paths.source, template),
+    // favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
+  });
+
+
+  return new HTMLWebpackPlugin({
+    inject: true,
+    hash: false,
+    filename: template,
+    template: path.resolve(environment.paths.source, template),
+    // favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
+  });
+});
 
 module.exports = {
   entry: {
@@ -36,32 +47,16 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts?$/,
         loader: "ts-loader"
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: ['babel-loader'],
-      },
+      }
     ],
   },
   plugins: [
     new CleanWebpackPlugin({
       verbose: true,
     }),
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     {
-    //       from: path.resolve(environment.paths.source, 'images', 'content'),
-    //       to: path.resolve(environment.paths.output, 'images', 'content'),
-    //       toType: 'dir',
-    //       globOptions: {
-    //         ignore: ['*.DS_Store', 'Thumbs.db'],
-    //       },
-    //     },
-    //   ],
-    // }),
+
   ].concat(htmlPluginEntries),
   target: 'web',
 };
