@@ -1,9 +1,9 @@
-import { HashTagPlugin, HashTagPluginProperties } from './plugins/inline/hashtag';
 import { PluginProperties, SocialPlugin } from "./interfaces/social-plugin.interface";
 import { map, take } from "rxjs/operators";
 
 import { Api } from "./api";
 import { EditorManager } from "./editor/editor-manager";
+import { HashTagPlugin } from './plugins/inline/hashtag';
 import { LinkPlugin } from "./plugins/inline/link";
 import events from "./utils/events";
 
@@ -90,23 +90,3 @@ export class App {
         })).subscribe();
     }
 }
-
-// const selectToEnd = (scribe) => {
-//     var selection = new scribe.api.Selection();
-//     var range = selection.range.cloneRange();
-//     range.setEndAfter(scribe.el.lastChild, 0);
-
-//     return range;
-// }
-
-// // Remove any empty elements at the start of the range.
-// const stripFirstEmptyElement = (div) => {
-//     if (div.firstChild === null) { return; }
-
-//     var firstChild = div.firstChild.childNodes[0];
-//     if (firstChild && firstChild.nodeName !== '#text') {
-//         if (firstChild.innerText === '') {
-//             div.firstChild.removeChild(firstChild);
-//         }
-//     }
-// }

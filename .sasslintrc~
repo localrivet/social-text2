@@ -1,13 +1,13 @@
 files:
   # formatter: stylish
   # include: '**/*.s+(a|c)ss'
-  ignore:
-    - 'src/scss/vendor/**/*.scss'
-    - 'src/scss/base/_reset.scss'
-    - 'src/scss/base/_print.scss'
-    - 'src/scss/base/_fonts.scss'
-    - 'src/scss/base/mixins.scss'
-    - 'src/scss/dirty/_hacks.scss'
+  # ignore:
+  #   - 'src/scss/vendor/**/*.scss'
+  #   - 'src/scss/base/_reset.scss'
+  #   - 'src/scss/base/_print.scss'
+  #   - 'src/scss/base/_fonts.scss'
+  #   - 'src/scss/base/mixins.scss'
+  #   - 'src/scss/dirty/_hacks.scss'
 
 rules:
   # Extends
