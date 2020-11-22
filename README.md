@@ -1,5 +1,8 @@
 # Social Text V2
 
+Social Text is a framework to automatically update ```contenteditable``` ```HTMLElements``` as  you type based on predefined rules. Each rule is defined in a plugin. 
+
+
 ## Usage
 
 ```sh
