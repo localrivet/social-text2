@@ -25,6 +25,9 @@ A pure function is a function which:
 - [learn more](https://medium.com/javascript-scene/master-the-javascript-interview-what-is-a-pure-function-d1c076bec976)
 
 
+#### Pro-Tip: 
+Notice the ```format``` function in the ```LinkPluginProperies``` interface returns a ```Promise<string>```. Asynchronous callbacks are required to allow remote ```fetch``` calls.
+
 ### TypeScript Example
 ```ts
 
@@ -33,7 +36,7 @@ import { PluginProperties } from '../../interfaces/social-plugin.interface';
 
 export interface LinkPluginProperties extends PluginProperties {
     transform?(url: string, hasSchema: boolean): string;
-    format?(url: string, noSchemaUrl): string;
+    format?(url: string, noSchemaUrl): Promise<string>;
 }
 
 export const LinkPlugin = (api: Api, props?: LinkPluginProperties) => {
@@ -55,12 +58,13 @@ export const LinkPlugin = (api: Api, props?: LinkPluginProperties) => {
             const hasSchema = matches[1] ? true : false;
             const transformedUrl = !!props.transform ? props.transform(matches[0], hasSchema) : matches[0];
             const noSchemaUrl = transformedUrl.replace(/^http[s]{0,1}:\/\//, '');
-            const url = props.format(transformedUrl, noSchemaUrl);
-
-            // send back to the editor
-            block.publish(
-                rawHTML.slice(0, rawHTML.lastIndexOf(lastWord)) + url 
-            );
+            
+            props.format(transformedUrl, noSchemaUrl).then(url => {
+                // send back to the editor
+                block.publish(
+                    rawHTML.slice(0, rawHTML.lastIndexOf(lastWord)) + url
+                );
+            });
         }
     }
 };
@@ -142,17 +146,9 @@ extend('header', {
 
 ```ts
 /** Setup your lookup function or class **/
-async function lookupUrl(url) {
-    return await fetch(`https://your-lookup-service.com/${url}`)
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (myJson) {
-            console.log(myJson.ip);
-        })
-        .catch(function (error) {
-            console.log("Error: " + error);
-        });
+const lookupUrl = async (url: string) => {
+    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/1`);
+    return await response.json();
 }
 
 /** Extend the plugin and use the format callback **/
@@ -160,8 +156,8 @@ extend<LinkPluginProperties>('link', {
     transform: (url: string, hasSchema: boolean) => {
         return hasSchema ? url : 'https://' + url;
     },
-    format: (url: string, noSchemaUrl: string) => {
-        const response = lookupUrl(noSchemaUrl);
+    format: async (url: string, noSchemaUrl: string) => {
+        const response = await lookupUrl(noSchemaUrl) as any;
         return `<a href="${url}" contenteditable="false" target="_blank">${response['title']}</a>`;
     }
 });

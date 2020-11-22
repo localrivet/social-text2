@@ -3,6 +3,11 @@
         "sourceMap": true,
         "typeRoots": [
             "./types"
+        ],
+        "lib": [
+            "ES2015",
+            "es5",
+            "DOM"
         ]
     }
 }
