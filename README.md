@@ -26,7 +26,7 @@ A pure function is a function which:
 
 
 #### Pro-Tip: 
-Notice the ```format``` function in the ```LinkPluginProperies``` interface returns a ```Promise<string>```. Asynchronous callbacks are required to allow remote ```fetch``` calls.
+Notice the ```format``` function in the ```LinkPluginProperties``` interface returns a ```Promise<string>```. Asynchronous callbacks are required to allow remote ```fetch``` calls.
 
 ### TypeScript Example
 ```ts
