@@ -44,9 +44,9 @@
     "imagemin-webpack-plugin": "^2.4.2",
     "nlcst-parse-english": "^1.1.2",
     "nlcst-pattern-match": "^1.3.5",
-    "rxjs": "^6.6.3",
     "selection-range": "^1.1.0",
     "terser-webpack-plugin": "^5.0.3",
+    "tiny-observables": "^1.0.0",
     "ts-loader": "^8.0.11",
     "ts-transformer-keys": "^0.4.2",
     "typescript": "^4.0.5",
@@ -78,5 +78,6 @@
     "production": "webpack --config configuration/webpack.prod.config.js --mode=production",
     "lint:ts": "eslint --ext .ts src/ts/"
   },
+  "sideEffects": false,
   "target": "web"
 }

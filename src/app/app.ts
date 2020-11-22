@@ -1,11 +1,9 @@
 import { PluginProperties, SocialPlugin } from "./interfaces/social-plugin.interface";
-import { map, take } from "rxjs/operators";
 
 import { Api } from "./api";
 import { EditorManager } from "./editor/editor-manager";
 import { HashTagPlugin } from './plugins/inline/hashtag';
 import { LinkPlugin } from "./plugins/inline/link";
-import events from "./utils/events";
 
 // 
 export class App {
@@ -75,7 +73,7 @@ export class App {
     }
 
     private _bootstrap() {
-        events.windowLoadEvent.pipe(take(1), map(() => {
+        window.addEventListener('load', () => {
             // load the plugins
             for (const name in this._socialPlugins) {
                 const plugin = this._socialPlugins[name];
@@ -86,7 +84,11 @@ export class App {
 
             // load the block-manager & set the triggers
             (new EditorManager(this._api)).setPlugins(this._socialPlugins);
+        });
 
-        })).subscribe();
+        // windowLoadEvent.pipe(take(1), map(() => {
+
+
+        // })).subscribe();
     }
 }

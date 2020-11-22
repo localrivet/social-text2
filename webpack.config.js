@@ -9,24 +9,14 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const environment = require('./configuration/environment');
 
-const templateFiles = fs.readdirSync(path.resolve(__dirname, environment.paths.source));
+const templateFiles = fs.readdirSync(path.resolve(__dirname, environment.paths.source)).filter(template => /\.html/.test(template));
 const htmlPluginEntries = templateFiles.map((template) => {
-
-  console.log({
-    inject: true,
-    hash: false,
-    filename: template,
-    template: path.resolve(environment.paths.source, template),
-    // favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
-  });
-
-
   return new HTMLWebpackPlugin({
     inject: true,
     hash: false,
     filename: template,
     template: path.resolve(environment.paths.source, template),
-    // favicon: path.resolve(environment.paths.source, 'images', 'favicon.ico'),
+    favicon: path.resolve(environment.paths.source, '../', 'favicon.ico'),
   });
 });
 
@@ -42,7 +32,7 @@ module.exports = {
   },
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".ts", ".js"]
   },
   module: {
     rules: [
@@ -56,7 +46,6 @@ module.exports = {
     new CleanWebpackPlugin({
       verbose: true,
     }),
-
   ].concat(htmlPluginEntries),
   target: 'web',
 };

@@ -57,10 +57,11 @@ export class EditorManager {
     }
 
     private _setEditorEvents(editor: HTMLElement) {
-        // process the triggers first
-        this.api.keyUp(editor).subscribe((ev: KeyboardEvent) => {
+        editor.addEventListener('keyup', (ev: KeyboardEvent) => {
 
-            // process all the 
+            // keyUp(editor).subscribe((ev: KeyboardEvent) => {
+
+            // process the triggers first
             if (this._activeBlock) {
                 // pass this by value
                 this._processTriggers(ev);
@@ -87,7 +88,7 @@ export class EditorManager {
                 node.dataset.block = newBlockID;
                 this._blocks[newBlockID] = new Block(newBlockID, node);
                 this._activeBlock = this._blocks[newBlockID];
-                this.api.activeBlock.next(this._blocks[newBlockID]);
+                this.api.activeBlockSubject.next(this._blocks[newBlockID]);
                 return;
             }
             else if (ev.key !== 'Enter' && !ev.shiftKey) {
@@ -105,10 +106,12 @@ export class EditorManager {
                     if (!this._activeBlock || this._activeBlock.blockID != blockID) {
                         // console.log('block switched');
                         this._activeBlock = this._blocks[blockID];
-                        this.api.activeBlock.next(this._blocks[blockID]);
+                        this.api.activeBlockSubject.next(this._blocks[blockID]);
                     }
                 }
             }
+            // });
+
         });
     }
 
