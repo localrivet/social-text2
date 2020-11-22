@@ -6,6 +6,7 @@ export interface HeaderPluginProperties extends PluginProperties {
   tag?: HeaderTagSize;
   minLength?: number;
   minWords?: number;
+  format?(header: string): string;
 }
 
 export const HeaderPlugin = (api: Api, props?: HeaderPluginProperties) => {
@@ -25,7 +26,11 @@ export const HeaderPlugin = (api: Api, props?: HeaderPluginProperties) => {
     if (hasPunctuation === false) {
 
       const el = document.createElement('h1');
-      el.innerHTML = block.rawHTML();
+      if (props && !!props.format) {
+        el.innerHTML = props.format(block.rawHTML());
+      } else {
+        el.innerHTML = block.rawHTML();
+      }
 
       // replace the blockID
       el.dataset.block = api.block.blockElement.dataset.block;

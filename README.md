@@ -137,3 +137,33 @@ extend('header', {
 });
 
 ```
+
+## Using Remote Data
+
+```ts
+/** Setup your lookup function or class **/
+async function lookupUrl(url) {
+    return await fetch(`https://your-lookup-service.com/${url}`)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (myJson) {
+            console.log(myJson.ip);
+        })
+        .catch(function (error) {
+            console.log("Error: " + error);
+        });
+}
+
+/** Extend the plugin and use the format callback **/
+extend<LinkPluginProperties>('link', {
+    transform: (url: string, hasSchema: boolean) => {
+        return hasSchema ? url : 'https://' + url;
+    },
+    format: (url: string, noSchemaUrl: string) => {
+        const response = lookupUrl(noSchemaUrl);
+        return `<a href="${url}" contenteditable="false" target="_blank">${response['title']}</a>`;
+    }
+});
+
+```
