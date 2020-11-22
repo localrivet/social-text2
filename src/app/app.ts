@@ -2,8 +2,9 @@ import { PluginProperties, SocialPlugin } from "./interfaces/social-plugin.inter
 
 import { Api } from "./api";
 import { EditorManager } from "./editor/editor-manager";
-import { HashTagPlugin } from './plugins/inline/hashtag';
-import { LinkPlugin } from "./plugins/inline/link";
+import { HashTagPlugin } from './plugins/embed/hashtag';
+import { HeaderPlugin } from "./plugins/inline/header";
+import { LinkPlugin } from "./plugins/embed/link";
 
 // 
 export class App {
@@ -59,19 +60,6 @@ export class App {
         }
     }
 
-    private _loadInternalPlugins() {
-
-        this.register('hashtag', {
-            trigger: /[\s.,;:!?]/,
-            exec: HashTagPlugin
-        });
-
-        this.register('link', {
-            trigger: /\s/,
-            exec: LinkPlugin
-        });
-    }
-
     private _bootstrap() {
         window.addEventListener('load', () => {
             // load the plugins
@@ -85,10 +73,29 @@ export class App {
             // load the block-manager & set the triggers
             (new EditorManager(this._api)).setPlugins(this._socialPlugins);
         });
+    }
 
-        // windowLoadEvent.pipe(take(1), map(() => {
+    /**
+     * loads internal plugins
+     */
+    private _loadInternalPlugins() {
 
+        // hashtag plugin
+        this.register('hashtag', {
+            trigger: /[\s.,;:!?]/,
+            exec: HashTagPlugin
+        });
 
-        // })).subscribe();
+        // link plugin
+        this.register('link', {
+            trigger: /\s/,
+            exec: LinkPlugin
+        });
+
+        // header plugin
+        this.register('header', {
+            trigger: 'Enter',
+            exec: HeaderPlugin
+        });
     }
 }

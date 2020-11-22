@@ -1,6 +1,8 @@
 import { App } from './app/app';
-import { HashTagPluginProperties } from './app/plugins/inline/hashtag';
-import { LinkPluginProperties } from './app/plugins/inline/link';
+import { HashTagPluginProperties } from './app/plugins/embed/hashtag';
+import { HeaderPluginProperties } from './app/plugins/inline/header';
+import { HeaderTagSize } from './app/enums/header-tag-size.enum';
+import { LinkPluginProperties } from './app/plugins/embed/link';
 import { PluginCallback } from './app/interfaces/social-plugin.interface';
 
 const app = new App();
@@ -29,4 +31,17 @@ extend<LinkPluginProperties>('link', {
     format: (url: string, noSchemaUrl: string) => {
         return `<a href="${url}" contenteditable="false" target="_blank">${noSchemaUrl}</a>`;
     }
+});
+
+extend<HeaderPluginProperties>('header', {
+    tag: HeaderTagSize.H1,
+    minWords: 4,
+    styles: {
+        'color': 'blue',
+        'border-bottom': '3px solid red'
+    },
+    classes: [
+        'header-style',
+        'bolder-please'
+    ]
 });

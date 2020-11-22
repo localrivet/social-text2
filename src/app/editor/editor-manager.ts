@@ -41,12 +41,24 @@ export class EditorManager {
             for (const pluginName in this._plugins) {
                 // console.log('*** CHECKING TRIGGER FOR: ', pluginName);
                 if (this._plugins[pluginName]) {
-                    const regex: RegExp = this._plugins[pluginName].trigger;
-                    // console.log('*** FOUND TRIGGER:', regex);
-
+                    let canUpdate: boolean = false;
+                    let regex: RegExp;
+                    let key: string;
                     const evalChar = this._activeBlock.blockElement.innerText.slice(-1);
+
+                    switch (typeof this._plugins[pluginName].trigger) {
+                        case 'object':
+                            regex = this._plugins[pluginName].trigger as RegExp;
+                            canUpdate = regex.test(evalChar) || ev.key === 'Enter';
+                            break;
+                        case 'string':
+                            key = this._plugins[pluginName].trigger as string;
+                            canUpdate = ev.key === key;
+                            break;
+                    }
+
                     // console.log('*** LAST_CHAR', evalChar, regex.test(evalChar));
-                    if (regex.test(evalChar) || ev.key === 'Enter') {
+                    if (canUpdate) {
                         // console.log('*** LAST_CHAR', evalChar, regex.test(evalChar));
                         this._activeBlock.trigger(ev);
                         this._plugins[pluginName].exec(this.api, this._plugins[pluginName].properties, ev);

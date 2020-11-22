@@ -1,6 +1,6 @@
 import { Api } from "../../api";
 import { Block } from "../../editor/block";
-import { PluginProperties } from './../../interfaces/social-plugin.interface';
+import { PluginProperties } from '../../interfaces/social-plugin.interface';
 
 export interface HashTagPluginProperties extends PluginProperties {
     format(hashTag: string): string;
@@ -17,7 +17,7 @@ export const HashTagPlugin = (api: Api, props?: HashTagPluginProperties) => {
     // do we have any properties?
     if (lastWord && /(?:^|\s)#[^\s.,;:!?]+/i.test(lastWord)) {
         // replace the hash
-        const lastWordToReplace = lastWord.replace(/#([^\s.,;:!?]+)/ig, (str, ...args) => {
+        let link = lastWord.replace(/#([^\s.,;:!?]+)/ig, (str, ...args) => {
             const hashTag = block.decodeHtml((args[0] || '')).trim();
             console.log('*** FOUND HASHTAG', hashTag)
             if (hashTag) {
@@ -30,20 +30,18 @@ export const HashTagPlugin = (api: Api, props?: HashTagPluginProperties) => {
             return str;
         });
 
-        // keep the last char if it's punctuation
-        let lastCharToReplace: string = '';
-        if (/[\s.,;:!?]+/ig.test(lastChar)) {
-            lastCharToReplace = lastChar.replace(/[\s.,;:!?]+/ig, (str, ...args) => {
-                if (args[1]) {
-                    return args[1];
-                }
-                return str;
-            });
-        }
+        const el = document.createElement('div');
+        el.innerHTML = link;
+        api.block.applyAttributes(props.attributes, el);
+        api.block.applyStyes(props.styles, el);
+        api.block.applyClasses(props.classes, el);
+
+        link = el.innerHTML;
+        el.remove();
 
         // send back to the editor
         block.publish(
-            rawHTML.slice(0, rawHTML.lastIndexOf(lastWord)) + lastWordToReplace + lastCharToReplace
+            rawHTML.slice(0, rawHTML.lastIndexOf(lastWord)) + link
         );
     }
 };
