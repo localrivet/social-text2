@@ -19,13 +19,14 @@ export const extend = <T>(pluginName: string, props?: T) => {
 }
 
 extend<HashTagPluginProperties>('hashtag', {
-    format: async (hashTag: string) => {
+    format: async (hashTag: string): Promise<string> => {
         return `<a href="https://twitter.com/hashtag/${hashTag}" contenteditable="false" target="_blank">#${hashTag}</a>`;
     }
 });
 
 const lookupUrl = async (url: string) => {
-    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/1`);
+    const id = Math.floor(Math.random() * Math.floor(200));
+    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id ? id : 1}`);
     return await response.json();
 }
 
@@ -34,7 +35,7 @@ extend<LinkPluginProperties>('link', {
     transform: (url: string, hasSchema: boolean) => {
         return hasSchema ? url : 'https://' + url;
     },
-    format: async (url: string, noSchemaUrl: string) => {
+    format: async (url: string, noSchemaUrl: string): Promise<string> => {
         const response = await lookupUrl(noSchemaUrl) as any;
         return `<a href="${url}" contenteditable="false" target="_blank">${response['title']}</a>`;
     }
