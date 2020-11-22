@@ -1,33 +1,30 @@
-import { Observable, Subject } from 'rxjs';
-
 import { Block } from './editor/block';
-import { fromEvent } from 'rxjs/internal/observable/fromEvent';
-
 export class Api {
-    debug: true;
-    activeBlock: Subject<Block>;
     block: Block;
+    activeBlockSubject: Subject<Block>;
+
     constructor() {
-        this.activeBlock = new Subject<Block>();
+        this.activeBlockSubject = new Subject<Block>();
 
-        this.activeBlock.subscribe(block => {
+        this.activeBlockSubject.subscribe((block: Block) => {
             this.block = block;
-        })
+        });
+    }
+}
+
+// subject class for the api block
+class Subject<T> {
+    private observers = [];
+
+    constructor() {
+        this.observers = [];
     }
 
-    keyUp(element: HTMLElement): Observable<Event> {
-        return fromEvent(element, 'keyup');
+    subscribe(observer) {
+        this.observers.push(observer);
     }
 
-    keyDown(element: HTMLElement): Observable<Event> {
-        return fromEvent(element, 'keydown');
-    }
-
-    onInput(element: HTMLElement): Observable<Event> {
-        return fromEvent(element, 'input');
-    }
-
-    getActiveBlock(): Observable<Block> {
-        return this.activeBlock;
+    next(value: T) {
+        this.observers.forEach(fn => fn(value));
     }
 }

@@ -1,11 +1,9 @@
-import { HashTagPlugin, HashTagPluginProperties } from './plugins/inline/hashtag';
 import { PluginProperties, SocialPlugin } from "./interfaces/social-plugin.interface";
-import { map, take } from "rxjs/operators";
 
 import { Api } from "./api";
 import { EditorManager } from "./editor/editor-manager";
+import { HashTagPlugin } from './plugins/inline/hashtag';
 import { LinkPlugin } from "./plugins/inline/link";
-import events from "./utils/events";
 
 // 
 export class App {
@@ -75,7 +73,7 @@ export class App {
     }
 
     private _bootstrap() {
-        events.windowLoadEvent.pipe(take(1), map(() => {
+        window.addEventListener('load', () => {
             // load the plugins
             for (const name in this._socialPlugins) {
                 const plugin = this._socialPlugins[name];
@@ -86,27 +84,11 @@ export class App {
 
             // load the block-manager & set the triggers
             (new EditorManager(this._api)).setPlugins(this._socialPlugins);
+        });
 
-        })).subscribe();
+        // windowLoadEvent.pipe(take(1), map(() => {
+
+
+        // })).subscribe();
     }
 }
-
-// const selectToEnd = (scribe) => {
-//     var selection = new scribe.api.Selection();
-//     var range = selection.range.cloneRange();
-//     range.setEndAfter(scribe.el.lastChild, 0);
-
-//     return range;
-// }
-
-// // Remove any empty elements at the start of the range.
-// const stripFirstEmptyElement = (div) => {
-//     if (div.firstChild === null) { return; }
-
-//     var firstChild = div.firstChild.childNodes[0];
-//     if (firstChild && firstChild.nodeName !== '#text') {
-//         if (firstChild.innerText === '') {
-//             div.firstChild.removeChild(firstChild);
-//         }
-//     }
-// }

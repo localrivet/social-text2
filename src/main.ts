@@ -1,8 +1,7 @@
-import { PluginCallback, PluginProperties } from './app/interfaces/social-plugin.interface';
-
 import { App } from './app/app';
 import { HashTagPluginProperties } from './app/plugins/inline/hashtag';
 import { LinkPluginProperties } from './app/plugins/inline/link';
+import { PluginCallback } from './app/interfaces/social-plugin.interface';
 
 const app = new App();
 
@@ -16,9 +15,6 @@ export const register = (pluginName: string, trigger: RegExp, callback: PluginCa
 export const extend = <T>(pluginName: string, props?: T) => {
     app.extend(pluginName, props);
 }
-
-
-
 
 extend<HashTagPluginProperties>('hashtag', {
     format: (hashTag: string) => {
