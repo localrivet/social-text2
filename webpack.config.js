@@ -22,7 +22,7 @@ const htmlPluginEntries = templateFiles.map((template) => {
 
 module.exports = {
   entry: {
-    app: path.resolve(environment.paths.source, 'main.ts'),
+    "social-text": path.resolve(environment.paths.source, 'main.ts'),
   },
   output: {
     filename: 'js/[name].js',
