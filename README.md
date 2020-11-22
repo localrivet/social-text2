@@ -69,7 +69,7 @@ export const LinkPlugin = (api: Api, props?: LinkPluginProperties) => {
 
 
 ## Extending Plugins
-### TypeScript
+### TypeScript Example
 ```ts
 /** HashTag Plugin **/
 extend<HashTagPluginProperties>('hashtag', {
@@ -103,7 +103,7 @@ extend<HeaderPluginProperties>('header', {
 });
 ```
 
-### JavaScript
+### JavaScript Example
 ```js
 /** HashTag Plugin **/
 extend('hashtag', {
